@@ -1,0 +1,28 @@
+# connectrpc.com/authn is left on v1: its API is unchanged, so the tool skips it.
+exec migrate
+cmp stdout out.txt
+-- ecosystem_authn.go --
+package example
+
+import (
+	"context"
+	"net/http"
+
+	"connectrpc.com/authn"
+)
+
+func authenticate(_ context.Context, req *http.Request) (any, error) {
+	token, ok := authn.BearerToken(req)
+	if !ok {
+		return nil, authn.Errorf("missing bearer token")
+	}
+	return token, nil
+}
+
+func wrap(mux *http.ServeMux) http.Handler {
+	middleware := authn.NewMiddleware(authenticate)
+	return middleware.Wrap(mux)
+}
+-- out.txt --
+Scanned 1 Go file and 0 Buf templates. No automatic rewrites were applied.
+None of the scanned Go files import connectrpc.com/connect, so there is nothing to migrate.

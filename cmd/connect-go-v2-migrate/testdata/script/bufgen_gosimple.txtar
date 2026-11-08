@@ -1,0 +1,35 @@
+# buf.gen.yaml with the v1 gosimple plugin: v2 makes the simple API the default
+# generator, so the entry moves to the local v2 plugin like connectrpc/go.
+exec migrate
+cmp stdout out.txt
+exec migrate -w
+cmp buf.gen.yaml want.yaml
+exec go build ./...
+-- doc.go --
+package app
+-- buf.gen.yaml --
+version: v2
+plugins:
+  - remote: buf.build/connectrpc/gosimple:v1.18.1
+    out: gen
+-- want.yaml --
+version: v2
+plugins:
+  - remote: buf.build/connectrpc/go:v2.0.0
+    out: gen
+-- out.txt --
+Proposed rewrites (rerun with -w to apply):
+  ./buf.gen.yaml: bufgen_replace_gosimple=1
+--- ./buf.gen.yaml
++++ ./buf.gen.yaml
+@@ -1,5 +1,5 @@
+ version: v2
+ plugins:
+-  - remote: buf.build/connectrpc/gosimple:v1.18.1
++  - remote: buf.build/connectrpc/go:v2.0.0
+     out: gen
+ 
+
+
+Scanned 1 Go file and 1 Buf template. 1 rewrite(s) ready (rerun with -w to apply).
+Full migration guide: https://github.com/connectrpc/connect-go/blob/main/docs/v2-migration.md
